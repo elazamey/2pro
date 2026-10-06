@@ -179,7 +179,7 @@ Every command speaks JSON, YAML and CSV, so it composes:
 ```python
 from twopro import GitHub
 
-gh = GitHub()                        # token from env / `gh` CLI / stored login
+gh = GitHub()  # token from env / `gh` CLI / stored login
 
 for repo in gh.repos.list_for_authenticated_user(max_items=50):
     print(repo.full_name, repo.stargazers_count, repo.language)
@@ -208,7 +208,7 @@ gh.pulls.create_review("elazamey", "2pro", 7, event="APPROVE", body="LGTM")
 run = gh.actions.latest_run("elazamey", "2pro", branch="main")
 print(run.icon, run.conclusion, run.duration_seconds)
 gh.actions.rerun("elazamey", "2pro", run.id, failed_only=True)
-gh.actions.logs("elazamey", "2pro", run.id)             # bytes (a zip archive)
+gh.actions.logs("elazamey", "2pro", run.id)  # bytes (a zip archive)
 gh.actions.dispatch("elazamey", "2pro", "ci.yml", ref="main", inputs={"env": "prod"})
 
 # search, users, orgs - and the repo shortcut
@@ -220,9 +220,9 @@ gh.repo("elazamey/2pro").runs(branch="main")
 Nice details from the core client, all used automatically:
 
 ```python
-gh.client.rate_limit_status(refresh=True)   # RateLimit(limit=5000, remaining=4321, ...)
-gh.client.paginate("/user/repos")           # follows Link headers for you
-gh.client.get("/repos/a/b", use_cache=True) # ETag/304 conditional requests
+gh.client.rate_limit_status(refresh=True)  # RateLimit(limit=5000, remaining=4321, ...)
+gh.client.paginate("/user/repos")  # follows Link headers for you
+gh.client.get("/repos/a/b", use_cache=True)  # ETag/304 conditional requests
 gh.client.graphql("query { viewer { login } }")
 ```
 
