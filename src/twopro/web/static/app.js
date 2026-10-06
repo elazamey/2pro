@@ -3,6 +3,7 @@
 
 const state = {
   repos: [],
+  workflows: [],
   repo: null,       // "owner/name"
   tab: "overview",
   timer: null,
@@ -218,6 +219,7 @@ function refresh() {
   loadIssues();
   loadPulls();
   loadRuns();
+  loadWorkflows();
   if (state.tab === "digest") loadDigest();
 }
 
@@ -475,6 +477,51 @@ async function runAction(runId, action, failedOnly = false) {
   }
 }
 
+/* --------------------------------------------------------------- workflows */
+
+async function loadWorkflows() {
+  try {
+    const data = await api(`/api/repos/${state.repo}/workflows`);
+    state.workflows = data.items || [];
+  } catch (_) {
+    state.workflows = [];
+  }
+}
+
+function dispatchDialog() {
+  if (!state.workflows.length) {
+    toast("No workflow_dispatch workflows found", "warn");
+    return;
+  }
+  const options = state.workflows
+    .map((w) => `<option value="${escapeHtml(w.id)}">${escapeHtml(w.name)} (${escapeHtml(w.path || w.id)})</option>`)
+    .join("");
+  openModal({
+    title: "Run a workflow",
+    body: `<div><label>Workflow</label><select class="input" id="m-workflow">${options}</select></div>
+           <div><label>Ref (branch or tag)</label><input class="input" id="m-ref" value="main" /></div>
+           <div><label>Inputs (one per line, key=value)</label>
+             <textarea class="input" id="m-inputs" placeholder="env=prod&#10;debug=true"></textarea></div>`,
+    okText: "Dispatch",
+    onOk: async () => {
+      const inputs = {};
+      for (const line of $("#m-inputs").value.split("\n")) {
+        const trimmed = line.trim();
+        if (!trimmed) continue;
+        const separator = trimmed.indexOf("=");
+        if (separator === -1) continue;
+        inputs[trimmed.slice(0, separator).trim()] = trimmed.slice(separator + 1).trim();
+      }
+      await api(
+        `/api/repos/${state.repo}/workflows/${$("#m-workflow").value}/dispatch`,
+        { method: "POST", body: { ref: $("#m-ref").value || "main", inputs } }
+      );
+      toast("Workflow dispatched", "ok");
+      setTimeout(loadRuns, 2000);
+    },
+  });
+}
+
 /* ------------------------------------------------------------------- digest */
 
 async function loadDigest() {
@@ -519,6 +566,7 @@ function wireEvents() {
 
   $("#btn-refresh").addEventListener("click", () => { updateRateLimit(); refresh(); });
   $("#btn-new-issue").addEventListener("click", newIssueDialog);
+  $("#btn-dispatch").addEventListener("click", dispatchDialog);
   $("#btn-digest").addEventListener("click", loadDigest);
   $("#issue-state").addEventListener("change", loadIssues);
   $("#pr-state").addEventListener("change", loadPulls);

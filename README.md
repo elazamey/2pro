@@ -115,6 +115,9 @@ Global options: `--token`, `--hostname` (GitHub Enterprise), `-f/--format`
 2pro repo branches elazamey/2pro
 2pro repo readme elazamey/2pro
 2pro repo search "language:python stars:>1000"
+2pro repo edit elazamey/2pro --description "..." --private --archive
+2pro repo secrets elazamey/2pro          # Actions secret names (never the values)
+2pro repo clone elazamey/2pro --depth 1  # uses `gh` when installed, else git
 ```
 
 ### Issues
@@ -128,6 +131,7 @@ Global options: `--token`, `--hostname` (GitHub Enterprise), `-f/--format`
 2pro issue comment elazamey/2pro 42 --body "Reproduced on main"
 2pro issue close elazamey/2pro 42 --reason not_planned --comment "wontfix"
 2pro issue label elazamey/2pro 42 --add "needs-triage,bug" --remove duplicate
+2pro issue edit elazamey/2pro 42 --title "Crash on empty input" --assignee octocat
 ```
 
 ### Pull requests
@@ -140,6 +144,7 @@ Global options: `--token`, `--hostname` (GitHub Enterprise), `-f/--format`
 2pro pr review elazamey/2pro 7 --approve --body "LGTM"
 2pro pr merge elazamey/2pro 7 --method squash --yes
 2pro pr create elazamey/2pro --title "feat(api): add paging" --head feat --base main
+2pro pr edit elazamey/2pro 7 --base develop --title "feat(api): add paging + sort"
 ```
 
 ### Actions
@@ -251,9 +256,10 @@ A single-page control room with **no build step** (vanilla JS + CSS):
 - repository picker with search, private/public and language metadata
 - **Issues** — browse, create, comment, close (with a reason)
 - **Pull requests** — view, merge (merge/squash/rebase), run the automated review
-- **Actions** — runs with live status, re-run (all or failed jobs), cancel, dispatch
+- **Actions** — runs with live status, re-run (all or failed jobs), cancel, and dispatch a `workflow_dispatch` run straight from the UI
 - **Digest** — markdown activity report rendered in place
 - rate-limit meter in the header, optional 30s auto-refresh
+- full command reference in [`docs/CLI.md`](docs/CLI.md)
 
 The browser only ever talks to `/api/*` on the same origin; the credential stays on
 the server. Interactive OpenAPI docs are at `/docs`.
@@ -315,7 +321,7 @@ Copy `.env.example` to `.env` — it is loaded automatically.
 
 ```bash
 pip install -e ".[dev,web]"
-pytest                       # 278 hermetic tests, no network access
+pytest                       # 318 hermetic tests, no network access
 pytest --cov=twopro --cov-report=term-missing
 ruff check . && ruff format .
 2pro serve                   # hack on the dashboard with a live preview

@@ -96,6 +96,9 @@
 │ topics    Show repository topics.                                                                │
 │ readme    Print the README.                                                                      │
 │ search    Search repositories (search API: 30 requests/minute).                                  │
+│ edit      Change repository settings (only the flags you pass are sent).                         │
+│ secrets   List Actions secret names (values are never returned by the API).                      │
+│ clone     Clone a repository with `gh` (falling back to plain git).                              │
 │ open      Print the repository URL (or open it with --browser).                                  │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
 
@@ -116,6 +119,7 @@
 │ list      List issues (pull requests are excluded).                                              │
 │ view      Show one issue.                                                                        │
 │ create    Open a new issue.                                                                      │
+│ edit      Edit an issue (title, body, labels, assignees).                                        │
 │ close     Close an issue.                                                                        │
 │ reopen    Reopen a closed issue.                                                                 │
 │ comment   Add a comment to an issue (works for pull requests too).                               │
@@ -140,6 +144,7 @@
 │ list     List pull requests.                                                                     │
 │ view     Show one pull request.                                                                  │
 │ create   Open a pull request.                                                                    │
+│ edit     Edit a pull request.                                                                    │
 │ merge    Merge a pull request.                                                                   │
 │ close    Close a pull request without merging.                                                   │
 │ files    Changed files with per-file additions/deletions.                                        │

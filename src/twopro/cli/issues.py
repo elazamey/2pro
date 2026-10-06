@@ -146,6 +146,44 @@ def create(
     )
 
 
+@app.command("edit")
+@handle_errors
+def edit(
+    ctx: typer.Context,
+    repo: Annotated[str, typer.Argument()],
+    number: Annotated[int, typer.Argument()],
+    title: Annotated[str | None, typer.Option("--title", "-t")] = None,
+    body: Annotated[str | None, typer.Option("--body", "-b")] = None,
+    add_label: Annotated[str | None, typer.Option("--add-label")] = None,
+    assignee: Annotated[str | None, typer.Option("--assignee", "-a")] = None,
+) -> None:
+    """Edit an issue (title, body, labels, assignees)."""
+    owner, name = split_repo(repo)
+    if not any([title, body, add_label, assignee]):
+        ctx.obj.out.error("Nothing to change: pass --title, --body, --add-label or --assignee.")
+        raise typer.Exit(2)
+    issue = ctx.obj.github.issues.update(
+        owner,
+        name,
+        number,
+        title=title,
+        body=body,
+        labels=add_label,
+        assignees=assignee,
+    )
+    ctx.obj.out.success(f"updated #{issue.number}")
+    ctx.obj.out.detail(
+        _row(issue),
+        fields=[
+            ("number", "#"),
+            ("title", "Title"),
+            ("state", "State"),
+            ("labels", "Labels"),
+            ("url", "URL"),
+        ],
+    )
+
+
 @app.command("close")
 @handle_errors
 def close(

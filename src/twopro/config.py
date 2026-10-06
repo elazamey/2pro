@@ -101,6 +101,15 @@ class Settings:
         return replace(self, **clean)
 
 
+def _env_ca_bundle() -> str | None:
+    """CA bundle path, for corporate proxies or a private GHE certificate."""
+    for name in ("TWOPRO_CA_BUNDLE", "SSL_CERT_FILE", "REQUESTS_CA_BUNDLE", "CURL_CA_BUNDLE"):
+        value = os.environ.get(name)
+        if value and Path(value).expanduser().is_file():
+            return str(Path(value).expanduser())
+    return None
+
+
 def load_settings(
     *,
     token: str | None = None,
@@ -135,6 +144,7 @@ def load_settings(
         verify_ssl=(
             verify_ssl if verify_ssl is not None else _env_bool("TWOPRO_VERIFY_SSL", default=True)
         ),
+        ca_bundle=ca_bundle or _env_ca_bundle(),
         wait_on_rate_limit=(
             wait_on_rate_limit
             if wait_on_rate_limit is not None

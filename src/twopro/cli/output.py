@@ -155,8 +155,13 @@ class Output:
         if not isinstance(data, dict):
             self.console.print(truncate(data, 200))
             return
-        if self.fmt in (OutputFormat.JSON, OutputFormat.YAML):
-            self.rows([data], columns=fields or list(data.keys()))
+        if self.fmt is OutputFormat.JSON:
+            self.console.print_json(json.dumps(data, default=str))
+            return
+        if self.fmt is OutputFormat.YAML:
+            self.console.print(
+                yaml.safe_dump(data, sort_keys=False, default_flow_style=False).rstrip()
+            )
             return
 
         headers = _normalise_columns(fields, data)

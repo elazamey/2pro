@@ -11,7 +11,7 @@ git clone https://github.com/elazamey/2pro.git
 cd 2pro
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev,web]"
-pytest
+pytest    # 318 hermetic tests
 ```
 
 ## Before you open a pull request

@@ -249,6 +249,104 @@ def search(
     ctx.obj.out.rows(rows, columns=REPO_COLUMNS, empty="No repositories matched.")
 
 
+@app.command("edit")
+@handle_errors
+def edit(
+    ctx: typer.Context,
+    repo: Annotated[str, typer.Argument()],
+    description: Annotated[str | None, typer.Option("--description", "-d")] = None,
+    homepage: Annotated[str | None, typer.Option("--homepage")] = None,
+    default_branch: Annotated[str | None, typer.Option("--default-branch")] = None,
+    private: Annotated[
+        bool | None, typer.Option("--private/--public", help="Change visibility.")
+    ] = None,
+    archived: Annotated[
+        bool | None, typer.Option("--archive/--unarchive", help="Archive the repository.")
+    ] = None,
+) -> None:
+    """Change repository settings (only the flags you pass are sent)."""
+    owner, name = split_repo(repo)
+    fields = {
+        "description": description,
+        "homepage": homepage,
+        "default_branch": default_branch,
+        "private": private,
+        "archived": archived,
+    }
+    if not any(value is not None for value in fields.values()):
+        ctx.obj.out.error("Nothing to change: pass at least one option.")
+        raise typer.Exit(2)
+    updated = ctx.obj.github.repos.update(owner, name, **fields)
+    ctx.obj.out.success(f"updated {updated.full_name}")
+    ctx.obj.out.detail(
+        _row(updated),
+        fields=[
+            ("full_name", "Repository"),
+            ("description", "Description"),
+            ("visibility", "Visibility"),
+            ("default_branch", "Default branch"),
+            ("archived", "Archived"),
+        ],
+    )
+
+
+@app.command("secrets")
+@handle_errors
+def secrets(ctx: typer.Context, repo: Annotated[str, typer.Argument()]) -> None:
+    """List Actions secret names (values are never returned by the API)."""
+    owner, name = split_repo(repo)
+    rows = [
+        {"name": s.get("name", "?"), "updated": (s.get("updated_at") or "")[:10]}
+        for s in ctx.obj.github.actions.secrets(owner, name, max_items=100)
+    ]
+    ctx.obj.out.rows(
+        rows,
+        columns=[("name", "Secret"), ("updated", "Updated")],
+        empty="No Actions secrets (or the token cannot read them).",
+    )
+
+
+@app.command("clone")
+@handle_errors
+def clone(
+    ctx: typer.Context,
+    repo: Annotated[str, typer.Argument()],
+    dest: Annotated[str | None, typer.Argument(help="Target directory.")] = None,
+    depth: Annotated[int | None, typer.Option("--depth", help="Shallow clone depth.")] = None,
+    dry_run: Annotated[
+        bool,
+        typer.Option("--dry-run", help="Print the command instead of running it."),
+    ] = False,
+) -> None:
+    """Clone a repository with `gh` (falling back to plain git)."""
+    import shutil
+    import subprocess
+
+    owner, name = split_repo(repo)
+    gh_bin = shutil.which("gh")
+    if gh_bin:
+        command = [gh_bin, "repo", "clone", f"{owner}/{name}"]
+        if dest:
+            command.append(dest)
+        if depth:
+            command += ["--", "--depth", str(depth)]
+    else:
+        command = ["git", "clone", f"https://github.com/{owner}/{name}.git"]
+        if depth:
+            command += ["--depth", str(depth)]
+        if dest:
+            command.append(dest)
+
+    if dry_run:
+        ctx.obj.out.value(" ".join(command))
+        return
+
+    completed = subprocess.run(command, check=False)
+    if completed.returncode == 0:
+        ctx.obj.out.success(f"cloned {owner}/{name}" + (f" into {dest}" if dest else ""))
+    raise typer.Exit(completed.returncode)
+
+
 @app.command("open")
 @handle_errors
 def open_repo(

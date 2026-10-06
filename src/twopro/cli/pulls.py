@@ -111,6 +111,38 @@ def create(
     ctx.obj.out.success(f"opened #{pr.number}: {pr.html_url}")
 
 
+@app.command("edit")
+@handle_errors
+def edit(
+    ctx: typer.Context,
+    repo: Annotated[str, typer.Argument()],
+    number: Annotated[int, typer.Argument()],
+    title: Annotated[str | None, typer.Option("--title", "-t")] = None,
+    body: Annotated[str | None, typer.Option("--body", "-b")] = None,
+    base: Annotated[str | None, typer.Option("--base", help="Change the target branch.")] = None,
+    state: Annotated[str | None, typer.Option("--state", help="open | closed")] = None,
+) -> None:
+    """Edit a pull request."""
+    owner, name = split_repo(repo)
+    if not any([title, body, base, state]):
+        ctx.obj.out.error("Nothing to change: pass --title, --body, --base or --state.")
+        raise typer.Exit(2)
+    pr = ctx.obj.github.pulls.update(
+        owner, name, number, title=title, body=body, base=base, state=state
+    )
+    ctx.obj.out.success(f"updated #{pr.number}")
+    ctx.obj.out.detail(
+        _row(pr),
+        fields=[
+            ("number", "#"),
+            ("title", "Title"),
+            ("state", "State"),
+            ("branch", "Branch"),
+            ("url", "URL"),
+        ],
+    )
+
+
 @app.command("merge")
 @handle_errors
 def merge(
