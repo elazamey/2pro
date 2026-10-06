@@ -1,0 +1,86 @@
+# Put this at .github/auto-label.yml in your repo.
+# Rules are evaluated top-to-bottom. If paths (and any other filters) match,
+# the label is added. If remove_on_no_match is true and the rule no longer
+# matches, the label is removed from the PR.
+
+frontend:
+  paths:
+    - "client/**"
+    - "src/**/*.{tsx,jsx,css,scss,vue,svelte}"
+    - "public/**"
+    - "web/**"
+  remove_on_no_match: true
+
+backend:
+  paths:
+    - "server/**"
+    - "api/**"
+    - "src/**/*.go"
+    - "src/**/*.py"
+    - "internal/**"
+    - "cmd/**"
+  remove_on_no_match: true
+
+docs:
+  paths:
+    - "docs/**"
+    - "**/*.md"
+  remove_on_no_match: true
+
+ci:
+  paths:
+    - ".github/workflows/**"
+    - ".circleci/**"
+    - "Jenkinsfile"
+  remove_on_no_match: true
+
+tests:
+  paths:
+    - "**/*.test.*"
+    - "**/*.spec.*"
+    - "__tests__/**"
+    - "test/**"
+    - "tests/**"
+  remove_on_no_match: true
+
+dependencies:
+  paths:
+    - "package.json"
+    - "package-lock.json"
+    - "pnpm-lock.yaml"
+    - "yarn.lock"
+    - "go.mod"
+    - "go.sum"
+    - "requirements.txt"
+    - "pyproject.toml"
+
+config:
+  paths:
+    - "*.json"
+    - "*.yml"
+    - "*.yaml"
+    - "*.toml"
+    - "Dockerfile"
+  remove_on_no_match: true
+
+# Meta rules that don't look at paths
+draft:
+  drafts: true
+  remove_on_no_match: true
+
+hotfix:
+  head_branches:
+    - "hotfix/**"
+    - "hotfix-*"
+  remove_on_no_match: true
+
+small:
+  paths: []
+  max_changed_files: 5
+  max_additions: 50
+  remove_on_no_match: true
+
+large:
+  paths: []
+  min_additions: 500
+  remove_on_no_match: true

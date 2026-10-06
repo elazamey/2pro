@@ -1,0 +1,22 @@
+# Example: .github/workflows/auto-label.yml
+name: Auto-label PRs
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Auto-label
+        uses: your-org/2pro/actions/auto-label-pr@main  # replace with real ref
+        with:
+          config-path: ".github/auto-label.yml"
+          add-labels: "needs-review"
+          dry-run: "false"
