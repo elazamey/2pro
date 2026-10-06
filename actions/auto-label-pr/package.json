@@ -1,0 +1,23 @@
+{
+  "name": "@2pro/action-auto-label-pr",
+  "version": "1.0.0",
+  "description": "GitHub Action: auto-label PRs by path/glob/draft/size rules",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "npx esbuild src/index.ts --bundle --platform=node --target=node20 --format=esm --outfile=dist/index.js",
+    "dev": "npx esbuild src/index.ts --bundle --platform=node --target=node20 --format=esm --outfile=dist/index.js --watch",
+    "test": "node --import tsx --test src/*.test.ts"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@2pro/sdk": "*"
+  },
+  "devDependencies": {
+    "esbuild": "^0.20.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.0",
+    "@types/node": "^20.11.0"
+  }
+}

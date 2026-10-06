@@ -1,0 +1,12 @@
+{
+  "name": "@2pro/linear",
+  "version": "1.0.0",
+  "description": "Linear API client for 2pro (issues, projects, teams)",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
+  "scripts": { "build": "tsc -p tsconfig.json", "test": "node --test dist/*.test.js" },
+  "dependencies": {},
+  "devDependencies": { "@types/node": "^22", "typescript": "^5.6" }
+}

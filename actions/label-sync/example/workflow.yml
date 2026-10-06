@@ -1,0 +1,22 @@
+# Example workflow: put this in .github/workflows/labels.yml in any repo.
+name: Sync labels
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/labels.json"
+      - ".github/labels.yml"
+  workflow_dispatch:
+
+jobs:
+  labels:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Sync labels
+        uses: your-org/2pro/actions/label-sync@main  # replace with real ref
+        with:
+          config-path: ".github/labels.json"
+          dry-run: "false"
+          prune: "true"

@@ -1,0 +1,44 @@
+name: "2pro Auto-Label PRs"
+description: "Automatically label pull requests based on which files were changed (frontend, backend, docs, ci, tests, …)"
+author: "2pro"
+
+branding:
+  icon: "tag"
+  color: "green"
+
+inputs:
+  github-token:
+    description: "GitHub token (default: ${{ github.token }}). Needs `pull-requests: write` and `issues: write` (or just use a PAT)."
+    required: false
+    default: ${{ github.token }}
+  repo:
+    description: "Target repo owner/repo (default: current repo)"
+    required: false
+    default: ${{ github.repository }}
+  pr-number:
+    description: "PR number (default: extracted from the pull_request event payload)"
+    required: false
+  config-path:
+    description: "Path to a JSON/YAML rule config in the repo (default: .github/auto-label.yml)"
+    required: false
+    default: ".github/auto-label.yml"
+  dry-run:
+    description: "Set to 'true' to only log planned labels without applying them"
+    required: false
+    default: "false"
+  add-labels:
+    description: "Comma-separated labels to *always* add (e.g. 'needs-review')"
+    required: false
+    default: ""
+
+outputs:
+  added:
+    description: "Comma-separated list of labels that were added"
+  removed:
+    description: "Comma-separated list of labels that were removed"
+  summary:
+    description: "Human-readable summary of changes"
+
+runs:
+  using: "node20"
+  main: "dist/index.js"

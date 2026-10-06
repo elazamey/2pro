@@ -1,0 +1,43 @@
+services:
+  dashboard:
+    build: .
+    image: 2pro/dashboard:latest
+    container_name: 2pro-dashboard
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=production
+      - HOST=0.0.0.0
+      - PORT=3000
+      # --- GitHub ---
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID:-}
+      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET:-}
+      - SESSION_SECRET=${SESSION_SECRET:-please-change-me}
+      # --- Figma ---
+      - FIGMA_ACCESS_TOKEN=${FIGMA_ACCESS_TOKEN:-}
+      # --- Google ---
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
+      - PUBLIC_BASE_URL=${PUBLIC_BASE_URL:-}
+      # --- GitLab ---
+      # (GitLab token is set per-user in the dashboard UI and stored encrypted
+      # in the session cookie; no server-wide token required.)
+      # --- AI Gateway ---
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      # --- Webhooks ---
+      - GITHUB_WEBHOOK_SECRET=${GITHUB_WEBHOOK_SECRET:-}
+      - GITLAB_WEBHOOK_SECRET=${GITLAB_WEBHOOK_SECRET:-}
+      # --- Linear & Notion (optional; can also be entered per-session in the UI) ---
+      - LINEAR_API_KEY=${LINEAR_API_KEY:-}
+      - NOTION_TOKEN=${NOTION_TOKEN:-}
+    volumes:
+      - ./data:/home/node/.config/2pro
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/auth/session"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

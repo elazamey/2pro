@@ -1,0 +1,25 @@
+{
+  "name": "@2pro/webhooks",
+  "version": "1.0.0",
+  "description": "Webhook event engine for 2pro: receive GitHub/GitLab/Gmail events and trigger automations",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "node --test dist/*.test.js"
+  },
+  "dependencies": {
+    "@2pro/sdk": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "typescript": "^5.6"
+  }
+}

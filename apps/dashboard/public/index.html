@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>2pro · GitHub Dashboard</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">2P</div>
+      <div>
+        <h1>2pro</h1>
+        <div class="sub">GitHub Integration Dashboard</div>
+      </div>
+    </div>
+    <div class="userbox" id="userbox">
+      <div class="spinner"></div> Loading…
+    </div>
+  </header>
+
+  <main>
+    <section class="controls">
+      <label>Owner/Repo
+        <input id="repoInput" type="text" placeholder="owner/repo (leave empty for your repos)" disabled />
+      </label>
+      <label>State
+        <select id="stateSelect" disabled>
+          <option value="open" selected>open</option>
+          <option value="closed">closed</option>
+          <option value="all">all</option>
+        </select>
+      </label>
+      <label>Branch
+        <input id="branchInput" type="text" placeholder="(default branch)" disabled />
+      </label>
+      <button id="loadBtn" class="primary" disabled>Load</button>
+      <button id="newIssueBtn" class="ghost" disabled>+ New issue</button>
+    </section>
+
+    <nav class="tabs">
+      <button data-tab="overview" class="active">Overview</button>
+      <button data-tab="issues">Issues</button>
+      <button data-tab="pulls">Pull Requests</button>
+      <button data-tab="actions">Actions</button>
+      <button data-tab="commits">Commits</button>
+      <button data-tab="figma">Figma</button>
+      <button data-tab="google">Workspace</button>
+      <button data-tab="gitlab">GitLab</button>
+      <button data-tab="ai">AI Assistant</button>
+      <button data-tab="webhooks">Webhooks</button>
+      <button data-tab="integrations">Linear &amp; Notion</button>
+    </nav>
+
+    <section id="tab-overview" class="tab active">
+      <div class="grid" id="reposGrid"><div class="spinner"></div> Loading repositories…</div>
+    </section>
+
+    <section id="tab-issues" class="tab">
+      <div id="issuesList"><p class="muted">Load a repo to see issues.</p></div>
+    </section>
+
+    <section id="tab-pulls" class="tab">
+      <div id="pullsList"><p class="muted">Load a repo to see pull requests.</p></div>
+    </section>
+
+    <section id="tab-actions" class="tab">
+      <div id="runsList"><p class="muted">Load a repo to see workflow runs.</p></div>
+    </section>
+
+    <section id="tab-commits" class="tab">
+      <div id="commitsList"><p class="muted">Load a repo to see recent commits.</p></div>
+    </section>
+
+    <section id="tab-figma" class="tab">
+      <div class="figma-panel">
+        <div class="figma-input-row">
+          <input id="figmaUrl" type="text" placeholder="Paste a Figma file URL or file key…" />
+          <button id="figmaTokensBtn" class="primary">Extract tokens</button>
+          <button id="figmaCodeBtn" class="ghost">Generate HTML</button>
+        </div>
+        <p class="muted" id="figmaStatus">Requires <code>FIGMA_ACCESS_TOKEN</code> on the server.</p>
+        <div id="figmaOutput"></div>
+      </div>
+    </section>
+
+    <section id="tab-google" class="tab">
+      <div class="workspace-panel">
+        <div id="googleHeader" class="google-header"><div class="spinner"></div></div>
+        <div class="workspace-grid" id="workspaceGrid" style="display:none">
+          <div class="ws-card">
+            <h3>Gmail <span id="unreadBadge" class="badge open" style="display:none"></span></h3>
+            <div id="gmailList"><div class="spinner"></div></div>
+          </div>
+          <div class="ws-card">
+            <h3>Google Drive</h3>
+            <div class="drive-controls">
+              <input id="driveQuery" type="text" placeholder="Search files…" />
+              <button id="driveSearchBtn">Search</button>
+            </div>
+            <div id="driveList"><div class="spinner"></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-gitlab" class="tab">
+      <div class="gitlab-panel">
+        <div id="gitlabHeader"></div>
+        <div id="gitlabBody" style="display:none">
+          <section class="controls">
+            <label>Project
+              <input id="glProjectInput" type="text" placeholder="namespace/project or numeric id" />
+            </label>
+            <label>State
+              <select id="glStateSelect"><option value="opened" selected>opened</option><option value="closed">closed</option><option value="merged">merged (MRs)</option><option value="all">all</option></select>
+            </label>
+            <button id="glLoadBtn" class="primary">Load</button>
+          </section>
+          <div class="tabs" style="margin-top:16px">
+            <button data-gltab="overview" class="active">Projects</button>
+            <button data-gltab="issues">Issues</button>
+            <button data-gltab="mrs">Merge Requests</button>
+            <button data-gltab="pipelines">Pipelines</button>
+          </div>
+          <div id="glOverview" class="gltab active"><div id="glProjectsList"></div></div>
+          <div id="glIssues" class="gltab"><div id="glIssuesList" class="muted">Load a project to see issues.</div></div>
+          <div id="glMrs" class="gltab"><div id="glMrsList" class="muted">Load a project to see MRs.</div></div>
+          <div id="glPipelines" class="gltab"><div id="glPipelinesList" class="muted">Load a project to see pipelines.</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-webhooks" class="tab">
+      <h2>Event-Driven Webhooks</h2>
+      <p class="muted">Receive GitHub &amp; GitLab events and trigger automations (CI failure alerts, merge notifications, audit log).</p>
+      <div class="grid">
+        <div class="panel">
+          <h3>Endpoints</h3>
+          <div id="webhookEndpoints"></div>
+        </div>
+        <div class="panel">
+          <h3>Automation Rules</h3>
+          <div id="webhookRules"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="row between"><h3>Recent Events</h3><button id="webhookTest">Fire test event</button></div>
+        <div id="webhookEvents" class="table-wrap">
+          <table><thead><tr><th>When</th><th>Source</th><th>Type</th><th>Valid</th><th>Actions fired</th></tr></thead>
+            <tbody id="webhookEventsBody"></tbody></table>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-integrations" class="tab">
+      <h2>Linear &amp; Notion</h2>
+      <div class="grid">
+        <div class="panel">
+          <h3>Linear</h3>
+          <div id="linearStatus" class="muted">Loading…</div>
+          <div id="linearUI" style="display:none">
+            <div class="row"><button id="linearDisconnect" class="danger small">Disconnect</button></div>
+            <h4>Teams</h4><div id="linearTeams" class="table-wrap"></div>
+            <h4>Recent Issues</h4><div id="linearIssues" class="table-wrap"></div>
+          </div>
+          <div id="linearConnect" class="token-prompt" style="display:none">
+            <input type="password" id="linearKey" placeholder="Linear API key (lin_api_...)" />
+            <button id="linearConnectBtn" class="primary">Connect</button>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Notion</h3>
+          <div id="notionStatus" class="muted">Loading…</div>
+          <div id="notionUI" style="display:none">
+            <div class="row"><button id="notionDisconnect" class="danger small">Disconnect</button></div>
+            <div class="row"><input id="notionSearchQ" placeholder="Search databases…"/><button id="notionSearchBtn">Search</button></div>
+            <div id="notionResults" class="table-wrap"></div>
+          </div>
+          <div id="notionConnect" class="token-prompt" style="display:none">
+            <input type="password" id="notionKey" placeholder="Notion integration token (secret_...)" />
+            <button id="notionConnectBtn" class="primary">Connect</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-ai" class="tab">
+      <div class="ai-panel">
+        <div id="aiStatus" class="muted">Loading…</div>
+        <div class="ai-chat" id="aiChat" style="display:none">
+          <div id="aiMessages" class="ai-messages"></div>
+          <div class="ai-input-row">
+            <select id="aiModel"></select>
+            <textarea id="aiInput" rows="2" placeholder="Ask anything — e.g. 'Summarize issue #42', 'Write a PR description for my current branch'"></textarea>
+            <button id="aiSend" class="primary">Send</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- New Issue Modal -->
+  <dialog id="issueModal">
+    <form method="dialog" id="issueForm">
+      <h3>New issue</h3>
+      <label>Title<input id="issueTitle" required /></label>
+      <label>Body<textarea id="issueBody" rows="5"></textarea></label>
+      <label>Labels (comma-separated)<input id="issueLabels" placeholder="bug, enhancement" /></label>
+      <div class="row">
+        <button type="button" id="issueCancel">Cancel</button>
+        <button type="submit" class="primary">Create</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="/app.js" type="module"></script>
+</body>
+</html>

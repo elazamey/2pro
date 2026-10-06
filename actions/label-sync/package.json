@@ -1,0 +1,21 @@
+{
+  "name": "@2pro/action-label-sync",
+  "version": "1.0.0",
+  "description": "GitHub Action: declaratively sync issue/PR labels on a repository",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "npx esbuild src/index.ts --bundle --platform=node --target=node20 --format=esm --outfile=dist/index.js",
+    "dev": "npx esbuild src/index.ts --bundle --platform=node --target=node20 --format=esm --outfile=dist/index.js --watch"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@2pro/sdk": "*"
+  },
+  "devDependencies": {
+    "esbuild": "^0.20.0",
+    "typescript": "^5.4.0",
+    "@types/node": "^20.11.0"
+  }
+}
