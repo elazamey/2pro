@@ -1,0 +1,60 @@
+name: Bug report
+description: Something in 2pro does not work as documented
+title: "fix: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to file a bug - please include the command you ran.
+
+  - type: input
+    id: version
+    attributes:
+      label: 2pro version
+      description: Output of `2pro --version`
+      placeholder: "0.1.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where does it happen?
+      options:
+        - CLI (`2pro ...`)
+        - Python SDK (`from twopro import GitHub`)
+        - Dashboard (`2pro serve`)
+        - Automation module
+        - GitHub Actions workflow
+    validations:
+      required: true
+
+  - type: textarea
+    id: command
+    attributes:
+      label: Command or code
+      render: shell
+      placeholder: 2pro repo list --mine
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour / traceback
+      render: shell
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: "Python 3.11, Ubuntu 24.04, github.com"

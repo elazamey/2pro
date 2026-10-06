@@ -1,0 +1,146 @@
+# Repository automation, powered by 2pro itself (dogfooding).
+#
+#   • every pull request  -> conventional-commit + size labels, automated review
+#   • daily 06:00 UTC     -> activity digest in the run summary
+#   • weekly Monday 07:00 -> stale sweep (dry run until you flip the input)
+#
+# Required permissions are granted per job.
+
+name: Repo automation
+
+on:
+  schedule:
+    - cron: "0 6 * * *" # daily digest
+    - cron: "0 7 * * 1" # weekly stale sweep
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+  workflow_dispatch:
+    inputs:
+      task:
+        description: Which automation to run
+        type: choice
+        options: [digest, stale, review, label]
+        default: digest
+      days:
+        description: Window in days (digest / stale)
+        type: number
+        default: 7
+      apply:
+        description: Write changes (false = dry run)
+        type: boolean
+        default: false
+      number:
+        description: Pull request number for review/label
+        type: number
+        default: 0
+
+permissions:
+  contents: read
+
+jobs:
+  label:
+    name: Label a pull request
+    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.task == 'label')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: python -m pip install -e .
+
+      - name: Apply size and type labels
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NUMBER: ${{ github.event.pull_request.number || inputs.number }}
+        run: |
+          2pro automate label "$GITHUB_REPOSITORY" "$NUMBER" \
+            ${{ github.event_name == 'workflow_dispatch' && inputs.apply && '--apply' || '--dry-run' }} --create-missing
+
+  review:
+    name: Automated review
+    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.task == 'review')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: python -m pip install -e .
+
+      - name: Review the pull request
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NUMBER: ${{ github.event.pull_request.number || inputs.number }}
+        run: |
+          2pro automate review "$GITHUB_REPOSITORY" "$NUMBER" --post \
+            ${{ github.event_name == 'workflow_dispatch' && inputs.apply && '--apply' || '--dry-run' }} \
+            --no-fail-on-error
+
+  digest:
+    name: Activity digest
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.task == 'digest')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: python -m pip install -e .
+
+      - name: Build the digest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DAYS: ${{ inputs.days || 1 }}
+        run: |
+          2pro automate digest "$GITHUB_REPOSITORY" --days "$DAYS" --out digest.md --no-stdout
+          cat digest.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: digest
+          path: digest.md
+          if-no-files-found: ignore
+
+  stale:
+    name: Stale sweep
+    if: |
+      (github.event_name == 'schedule' && github.event.schedule == '0 7 * * 1') ||
+      (github.event_name == 'workflow_dispatch' && inputs.task == 'stale')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: python -m pip install -e .
+
+      - name: Sweep stale issues
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DAYS: ${{ inputs.days || 60 }}
+        run: |
+          2pro automate stale "$GITHUB_REPOSITORY" --days "$DAYS" --close-days 14 \
+            ${{ inputs.apply && '--apply' || '--dry-run' }}

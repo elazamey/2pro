@@ -1,0 +1,42 @@
+name: Feature request
+description: Suggest a capability for 2pro
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Describe the workflow you are trying to finish today.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed interface
+      description: Sketch the command or Python call you would like to write.
+      render: shell
+      placeholder: 2pro pr checks owner/repo 42 --wait
+    validations:
+      required: true
+
+  - type: dropdown
+    id: layer
+    attributes:
+      label: Which layer should it live in?
+      options:
+        - SDK only
+        - CLI only
+        - CLI + SDK
+        - Dashboard
+        - Automation / CI
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Existing `gh` commands, scripts or tools you tried.
