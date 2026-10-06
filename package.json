@@ -1,0 +1,24 @@
+{
+  "name": "2pro",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GitHub integration toolkit: SDK, CLI, Dashboard, and GitHub Action",
+  "workspaces": [
+    "packages/*",
+    "apps/*",
+    "actions/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "dev:dashboard": "npm run dev -w @2pro/dashboard",
+    "dev:cli": "npm run dev -w @2pro/cli",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^26.6.4",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}

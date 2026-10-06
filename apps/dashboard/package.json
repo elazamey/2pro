@@ -1,0 +1,20 @@
+{
+  "name": "@2pro/dashboard",
+  "version": "1.0.0",
+  "description": "Web dashboard for GitHub — repos, issues, PRs, Actions (with GitHub OAuth)",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@2pro/sdk": "*",
+    "@2pro/figma": "*",
+    "@2pro/google": "*",
+    "@2pro/gitlab": "*",
+    "cookie": "^0.6.0",
+    "express": "^4.19.2"
+  }
+}

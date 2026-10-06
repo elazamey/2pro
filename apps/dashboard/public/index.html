@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>2pro · GitHub Dashboard</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">2P</div>
+      <div>
+        <h1>2pro</h1>
+        <div class="sub">GitHub Integration Dashboard</div>
+      </div>
+    </div>
+    <div class="userbox" id="userbox">
+      <div class="spinner"></div> Loading…
+    </div>
+  </header>
+
+  <main>
+    <section class="controls">
+      <label>Owner/Repo
+        <input id="repoInput" type="text" placeholder="owner/repo (leave empty for your repos)" disabled />
+      </label>
+      <label>State
+        <select id="stateSelect" disabled>
+          <option value="open" selected>open</option>
+          <option value="closed">closed</option>
+          <option value="all">all</option>
+        </select>
+      </label>
+      <label>Branch
+        <input id="branchInput" type="text" placeholder="(default branch)" disabled />
+      </label>
+      <button id="loadBtn" class="primary" disabled>Load</button>
+      <button id="newIssueBtn" class="ghost" disabled>+ New issue</button>
+    </section>
+
+    <nav class="tabs">
+      <button data-tab="overview" class="active">Overview</button>
+      <button data-tab="issues">Issues</button>
+      <button data-tab="pulls">Pull Requests</button>
+      <button data-tab="actions">Actions</button>
+      <button data-tab="commits">Commits</button>
+      <button data-tab="figma">Figma</button>
+      <button data-tab="google">Workspace</button>
+      <button data-tab="gitlab">GitLab</button>
+    </nav>
+
+    <section id="tab-overview" class="tab active">
+      <div class="grid" id="reposGrid"><div class="spinner"></div> Loading repositories…</div>
+    </section>
+
+    <section id="tab-issues" class="tab">
+      <div id="issuesList"><p class="muted">Load a repo to see issues.</p></div>
+    </section>
+
+    <section id="tab-pulls" class="tab">
+      <div id="pullsList"><p class="muted">Load a repo to see pull requests.</p></div>
+    </section>
+
+    <section id="tab-actions" class="tab">
+      <div id="runsList"><p class="muted">Load a repo to see workflow runs.</p></div>
+    </section>
+
+    <section id="tab-commits" class="tab">
+      <div id="commitsList"><p class="muted">Load a repo to see recent commits.</p></div>
+    </section>
+
+    <section id="tab-figma" class="tab">
+      <div class="figma-panel">
+        <div class="figma-input-row">
+          <input id="figmaUrl" type="text" placeholder="Paste a Figma file URL or file key…" />
+          <button id="figmaTokensBtn" class="primary">Extract tokens</button>
+          <button id="figmaCodeBtn" class="ghost">Generate HTML</button>
+        </div>
+        <p class="muted" id="figmaStatus">Requires <code>FIGMA_ACCESS_TOKEN</code> on the server.</p>
+        <div id="figmaOutput"></div>
+      </div>
+    </section>
+
+    <section id="tab-google" class="tab">
+      <div class="workspace-panel">
+        <div id="googleHeader" class="google-header"><div class="spinner"></div></div>
+        <div class="workspace-grid" id="workspaceGrid" style="display:none">
+          <div class="ws-card">
+            <h3>Gmail <span id="unreadBadge" class="badge open" style="display:none"></span></h3>
+            <div id="gmailList"><div class="spinner"></div></div>
+          </div>
+          <div class="ws-card">
+            <h3>Google Drive</h3>
+            <div class="drive-controls">
+              <input id="driveQuery" type="text" placeholder="Search files…" />
+              <button id="driveSearchBtn">Search</button>
+            </div>
+            <div id="driveList"><div class="spinner"></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-gitlab" class="tab">
+      <div class="gitlab-panel">
+        <div id="gitlabHeader"></div>
+        <div id="gitlabBody" style="display:none">
+          <section class="controls">
+            <label>Project
+              <input id="glProjectInput" type="text" placeholder="namespace/project or numeric id" />
+            </label>
+            <label>State
+              <select id="glStateSelect"><option value="opened" selected>opened</option><option value="closed">closed</option><option value="merged">merged (MRs)</option><option value="all">all</option></select>
+            </label>
+            <button id="glLoadBtn" class="primary">Load</button>
+          </section>
+          <div class="tabs" style="margin-top:16px">
+            <button data-gltab="overview" class="active">Projects</button>
+            <button data-gltab="issues">Issues</button>
+            <button data-gltab="mrs">Merge Requests</button>
+            <button data-gltab="pipelines">Pipelines</button>
+          </div>
+          <div id="glOverview" class="gltab active"><div id="glProjectsList"></div></div>
+          <div id="glIssues" class="gltab"><div id="glIssuesList" class="muted">Load a project to see issues.</div></div>
+          <div id="glMrs" class="gltab"><div id="glMrsList" class="muted">Load a project to see MRs.</div></div>
+          <div id="glPipelines" class="gltab"><div id="glPipelinesList" class="muted">Load a project to see pipelines.</div></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- New Issue Modal -->
+  <dialog id="issueModal">
+    <form method="dialog" id="issueForm">
+      <h3>New issue</h3>
+      <label>Title<input id="issueTitle" required /></label>
+      <label>Body<textarea id="issueBody" rows="5"></textarea></label>
+      <label>Labels (comma-separated)<input id="issueLabels" placeholder="bug, enhancement" /></label>
+      <div class="row">
+        <button type="button" id="issueCancel">Cancel</button>
+        <button type="submit" class="primary">Create</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="/app.js" type="module"></script>
+</body>
+</html>
