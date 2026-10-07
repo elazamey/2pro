@@ -1,0 +1,63 @@
+/* Event-backed, read-only Memory / Knowledge / Learning / Skills workspace */
+.learning-workspace-panel { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.learning-panel-heading { min-width: 0; display: flex; align-items: center; gap: 8px; }
+.learning-panel-symbol { width: 31px; height: 31px; flex: 0 0 auto; display: grid; place-items: center; border: 1px solid rgba(185,144,255,.16); border-radius: 9px; color: #c2a4ed; background: rgba(145,108,206,.08); }
+.learning-panel-heading > div { min-width: 0; flex: 1; }
+.learning-panel-heading h3 { margin: 0 0 3px; color: #e1dce9; font-size: 10px; }
+.learning-panel-heading p { margin: 0; color: #7e808e; font-size: 7px; line-height: 1.5; }
+.learning-readonly-badge { padding: 4px 6px; border: 1px solid rgba(255,255,255,.09); border-radius: 6px; color: #858895; font-size: 7px; white-space: nowrap; }
+.learning-subtabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 3px; padding: 3px; border: 1px solid var(--line); border-radius: 9px; background: rgba(255,255,255,.016); }
+.learning-subtab { min-width: 0; min-height: 29px; padding: 0 3px; display: flex; align-items: center; justify-content: center; gap: 3px; border: 1px solid transparent; border-radius: 6px; color: #858795; background: transparent; cursor: pointer; }
+.learning-subtab span { overflow: hidden; font-size: 7px; text-overflow: ellipsis; white-space: nowrap; }
+.learning-subtab > i { min-width: 14px; height: 14px; display: inline-grid; place-items: center; border-radius: 99px; color: #8a8c98; background: rgba(255,255,255,.055); font-size: 6px; font-style: normal; }
+.learning-subtab-active { border-color: rgba(185,144,255,.15); color: #e1d7ef; background: rgba(147,107,205,.1); }
+.learning-subtab-active > i { color: #d2baf4; background: rgba(185,144,255,.15); }
+.learning-panel-content { min-width: 0; }
+.cognition-record-list { display: flex; flex-direction: column; gap: 7px; }
+.cognition-record-card { min-width: 0; padding: 9px; border: 1px solid rgba(255,255,255,.075); border-radius: 9px; background: rgba(255,255,255,.018); }
+.cognition-card-heading { min-width: 0; display: flex; align-items: center; gap: 6px; }
+.cognition-card-icon { width: 24px; height: 24px; flex: 0 0 auto; display: grid; place-items: center; border: 1px solid rgba(185,144,255,.12); border-radius: 7px; color: #b69bd9; background: rgba(145,108,206,.06); }
+.cognition-card-heading > div { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 3px; }
+.cognition-card-heading strong { overflow: hidden; color: #d9d5e0; font-size: 8px; font-weight: 620; text-overflow: ellipsis; white-space: nowrap; }
+.cognition-card-heading small { overflow: hidden; color: #818390; font-size: 7px; text-overflow: ellipsis; white-space: nowrap; }
+.cognition-lifecycle, .cognition-neutral-badge { flex: 0 0 auto; padding: 3px 5px; border: 1px solid rgba(255,255,255,.08); border-radius: 99px; color: #9294a0; background: rgba(255,255,255,.025); font-size: 6px; white-space: nowrap; }
+.cognition-lifecycle-verified, .cognition-lifecycle-trusted, .cognition-lifecycle-active, .cognition-lifecycle-passed, .cognition-lifecycle-ready { border-color: rgba(124,219,181,.16); color: #94cbb0; background: rgba(124,219,181,.045); }
+.cognition-lifecycle-candidate, .cognition-lifecycle-testing, .cognition-lifecycle-proposed, .cognition-lifecycle-queued { border-color: rgba(210,180,125,.16); color: #ccb27e; background: rgba(210,180,125,.04); }
+.cognition-lifecycle-stale, .cognition-lifecycle-failed, .cognition-lifecycle-rejected, .cognition-lifecycle-archived, .cognition-lifecycle-superseded, .cognition-lifecycle-invalidated { border-color: rgba(255,142,158,.13); color: #c68d96; background: rgba(255,142,158,.035); }
+.cognition-card-content { margin: 8px 0 7px; color: #a8a6b1; font-size: 8px; line-height: 1.65; overflow-wrap: anywhere; }
+.cognition-card-content b, .cognition-trigger b { color: #c5bed2; font-weight: 600; }
+.cognition-card-meta { display: flex; align-items: center; justify-content: space-between; gap: 5px; margin-top: 7px; color: #777987; font-size: 6px; }
+.cognition-card-meta > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cognition-scope { overflow: hidden; color: #9690a2; text-overflow: ellipsis; white-space: nowrap; }
+.cognition-provenance { min-width: 0; margin-top: 7px; display: flex; align-items: flex-start; gap: 5px; color: #878996; font-size: 6px; line-height: 1.55; overflow-wrap: anywhere; }
+.cognition-provenance svg { flex: 0 0 auto; margin-top: 1px; color: #9e91b1; }
+.cognition-provenance span { min-width: 0; overflow-wrap: anywhere; }
+.cognition-evidence-stats, .cognition-experiment-counts { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px; }
+.cognition-evidence-stats span, .cognition-experiment-counts span, .cognition-strategy-list span { padding: 3px 5px; border: 1px solid rgba(255,255,255,.055); border-radius: 5px; color: #838592; background: rgba(255,255,255,.018); font-size: 6px; }
+.cognition-trigger { margin-top: 8px; color: #9694a0; font-size: 7px; line-height: 1.6; }
+.cognition-lesson-card { border-color: rgba(185,144,255,.12); background: linear-gradient(140deg, rgba(143,105,195,.055), transparent 60%), rgba(255,255,255,.018); }
+.cognition-relation-graph { min-width: 0; margin-top: 8px; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 5px; }
+.cognition-relation-graph span { min-width: 0; overflow: hidden; color: #a7a1b2; font-size: 6px; text-overflow: ellipsis; white-space: nowrap; }
+.cognition-relation-graph b { padding: 3px 5px; border: 1px solid rgba(185,144,255,.1); border-radius: 5px; color: #c0a6e2; background: rgba(145,108,206,.05); font-size: 6px; font-weight: 500; white-space: nowrap; }
+.cognition-strategy-list { display: flex; flex-wrap: wrap; gap: 4px; }
+.cognition-score-list { margin-top: 8px; display: flex; flex-direction: column; gap: 5px; }
+.cognition-score-list > span { min-width: 0; height: 17px; position: relative; display: flex; align-items: center; justify-content: space-between; gap: 6px; overflow: hidden; padding: 0 5px; border-radius: 4px; background: rgba(255,255,255,.035); }
+.cognition-score-list > span > i { height: 100%; position: absolute; inset-block: 0; inset-inline-start: 0; border-radius: inherit; background: linear-gradient(90deg, rgba(109,176,148,.14), rgba(151,127,196,.12)); }
+.cognition-score-list b, .cognition-score-list strong { position: relative; z-index: 1; color: #9999a5; font-size: 6px; font-weight: 500; }
+.cognition-score-list strong { direction: ltr; color: #b6b0c0; font-variant-numeric: tabular-nums; }
+.cognition-warning { margin-top: 7px; color: #c69e86; font-size: 7px; line-height: 1.5; }
+.cognition-empty-state { min-height: 205px; padding: 19px 13px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px dashed rgba(255,255,255,.09); border-radius: 10px; background: rgba(255,255,255,.012); text-align: center; }
+.cognition-empty-state > span { width: 39px; height: 39px; margin-bottom: 10px; display: grid; place-items: center; border: 1px solid rgba(185,144,255,.13); border-radius: 12px; color: #b49ada; background: rgba(145,108,206,.065); }
+.cognition-empty-state > strong { color: #d0cbd7; font-size: 8px; }
+.cognition-empty-state p { max-width: 230px; margin: 6px 0; color: #858794; font-size: 7px; line-height: 1.65; }
+.cognition-empty-state small { max-width: 230px; color: #6d6f7b; font-size: 6px; line-height: 1.6; }
+.learning-panel-footer { display: flex; align-items: flex-start; gap: 5px; padding-top: 8px; border-top: 1px solid var(--line); color: #777987; font-size: 6px; line-height: 1.6; }
+.learning-panel-footer svg { flex: 0 0 auto; margin-top: 1px; }
+.learning-panel-footer span { min-width: 0; }
+
+@media (max-width: 390px) {
+  .learning-subtab { gap: 2px; }
+  .learning-subtab span { font-size: 6px; }
+  .cognition-record-card { padding: 8px; }
+  .cognition-card-heading strong { font-size: 7px; }
+}

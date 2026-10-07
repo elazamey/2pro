@@ -1,0 +1,22 @@
+{
+  "name": "@2pro/agent-ui",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Celia Agent chat interface with a live execution timeline",
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "scripts": {
+    "dev": "npm run build --prefix ../../packages/notifications && next dev --hostname 0.0.0.0 --port 3001",
+    "build": "npm run build --prefix ../../packages/notifications && next build",
+    "start": "next start --hostname 0.0.0.0 --port 3001",
+    "test": "node --test test/*.test.mjs",
+    "telegram:setup": "node scripts/setup-telegram.mjs"
+  },
+  "dependencies": {
+    "@2pro/notifications": "*",
+    "next": "^16.4.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  }
+}

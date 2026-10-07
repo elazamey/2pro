@@ -1,0 +1,2043 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://2pro.dev/contracts/learning-memory-v1.schema.json",
+  "title": "2pro Learning, Memory, Knowledge, and Skills Contract v1",
+  "description": "Versioned records and event envelopes for evidence-based learning. Raw chain-of-thought is expressly excluded.",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160,
+      "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "nullableTimestamp": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/timestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "scope": {
+      "type": "object",
+      "required": [
+        "type",
+        "id"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "task",
+            "project",
+            "user",
+            "organization"
+          ]
+        },
+        "id": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "additionalProperties": false
+    },
+    "sourceRef": {
+      "type": "object",
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "user",
+            "document",
+            "official_docs",
+            "task_experience",
+            "tool_output",
+            "generated",
+            "inferred"
+          ]
+        },
+        "sourceId": {
+          "$ref": "#/$defs/id"
+        },
+        "taskId": {
+          "$ref": "#/$defs/id"
+        },
+        "version": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 120
+        },
+        "locator": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "uri": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https://",
+          "maxLength": 2000
+        }
+      },
+      "anyOf": [
+        {
+          "required": [
+            "sourceId"
+          ]
+        },
+        {
+          "required": [
+            "taskId"
+          ]
+        },
+        {
+          "required": [
+            "uri"
+          ]
+        }
+      ],
+      "additionalProperties": false
+    },
+    "evidenceStats": {
+      "type": "object",
+      "required": [
+        "observations",
+        "successes",
+        "failures",
+        "verificationCount"
+      ],
+      "properties": {
+        "observations": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "successes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "failures": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "verificationCount": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "memoryRecord": {
+      "type": "object",
+      "required": [
+        "contractVersion",
+        "id",
+        "kind",
+        "title",
+        "content",
+        "scope",
+        "lifecycle",
+        "confidence",
+        "sourceRefs",
+        "evidenceStats",
+        "revision",
+        "createdAt",
+        "updatedAt",
+        "lastUsedAt",
+        "expiresAt"
+      ],
+      "properties": {
+        "contractVersion": {
+          "const": "1"
+        },
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "kind": {
+          "enum": [
+            "episodic",
+            "semantic",
+            "procedural",
+            "preference"
+          ]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "content": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8000
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "lifecycle": {
+          "enum": [
+            "candidate",
+            "observed",
+            "learned",
+            "verified",
+            "trusted",
+            "stale",
+            "archived"
+          ]
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "sourceRefs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "items": {
+            "$ref": "#/$defs/sourceRef"
+          }
+        },
+        "evidenceStats": {
+          "$ref": "#/$defs/evidenceStats"
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "createdAt": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "lastUsedAt": {
+          "$ref": "#/$defs/nullableTimestamp"
+        },
+        "expiresAt": {
+          "$ref": "#/$defs/nullableTimestamp"
+        }
+      },
+      "additionalProperties": false
+    },
+    "knowledgeSource": {
+      "type": "object",
+      "required": [
+        "contractVersion",
+        "id",
+        "kind",
+        "title",
+        "canonicalUri",
+        "version",
+        "status",
+        "scope",
+        "publishedAt",
+        "retrievedAt",
+        "lastSyncedAt",
+        "createdAt",
+        "updatedAt",
+        "revision"
+      ],
+      "properties": {
+        "contractVersion": {
+          "const": "1"
+        },
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "kind": {
+          "enum": [
+            "document",
+            "url",
+            "repository",
+            "api"
+          ]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240
+        },
+        "canonicalUri": {
+          "oneOf": [
+            {
+              "type": "string",
+              "format": "uri",
+              "pattern": "^https://",
+              "maxLength": 2000
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "version": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 120
+        },
+        "status": {
+          "enum": [
+            "queued",
+            "indexing",
+            "ready",
+            "failed",
+            "stale",
+            "superseded",
+            "archived"
+          ]
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "publishedAt": {
+          "$ref": "#/$defs/nullableTimestamp"
+        },
+        "retrievedAt": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "lastSyncedAt": {
+          "$ref": "#/$defs/nullableTimestamp"
+        },
+        "createdAt": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "citation": {
+      "type": "object",
+      "required": [
+        "sourceId",
+        "locator"
+      ],
+      "properties": {
+        "sourceId": {
+          "$ref": "#/$defs/id"
+        },
+        "locator": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "quote": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "knowledgeItem": {
+      "type": "object",
+      "required": [
+        "contractVersion",
+        "id",
+        "sourceId",
+        "sourceVersion",
+        "kind",
+        "title",
+        "statement",
+        "scope",
+        "lifecycle",
+        "confidence",
+        "citations",
+        "validFrom",
+        "validUntil",
+        "createdAt",
+        "updatedAt",
+        "revision"
+      ],
+      "properties": {
+        "contractVersion": {
+          "const": "1"
+        },
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "sourceId": {
+          "$ref": "#/$defs/id"
+        },
+        "sourceVersion": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 120
+        },
+        "kind": {
+          "enum": [
+            "fact",
+            "rule",
+            "procedure",
+            "example",
+            "api_endpoint",
+            "parameter",
+            "schema",
+            "constraint",
+            "warning",
+            "dependency",
+            "architecture",
+            "best_practice"
+          ]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240
+        },
+        "statement": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "lifecycle": {
+          "enum": [
+            "candidate",
+            "verified",
+            "stale",
+            "superseded",
+            "archived"
+          ]
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "citations": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "items": {
+            "$ref": "#/$defs/citation"
+          }
+        },
+        "validFrom": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "validUntil": {
+          "$ref": "#/$defs/nullableTimestamp"
+        },
+        "createdAt": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "lessonEvidence": {
+      "type": "object",
+      "required": [
+        "id",
+        "taskId",
+        "outcome",
+        "strategy",
+        "summary",
+        "occurredAt"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "taskId": {
+          "$ref": "#/$defs/id"
+        },
+        "outcome": {
+          "enum": [
+            "success",
+            "partial",
+            "failure"
+          ]
+        },
+        "strategy": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 600
+        },
+        "occurredAt": {
+          "$ref": "#/$defs/timestamp"
+        }
+      },
+      "additionalProperties": false
+    },
+    "lessonRecord": {
+      "type": "object",
+      "required": [
+        "contractVersion",
+        "id",
+        "kind",
+        "title",
+        "trigger",
+        "recommendation",
+        "scope",
+        "lifecycle",
+        "confidence",
+        "evidence",
+        "sourceRefs",
+        "createdAt",
+        "updatedAt",
+        "revision"
+      ],
+      "properties": {
+        "contractVersion": {
+          "const": "1"
+        },
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "kind": {
+          "enum": [
+            "fact",
+            "procedure",
+            "preference",
+            "failure",
+            "success",
+            "strategy"
+          ]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "trigger": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "recommendation": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "lifecycle": {
+          "enum": [
+            "candidate",
+            "testing",
+            "verified",
+            "approved",
+            "active",
+            "stale",
+            "rejected",
+            "archived"
+          ]
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 50,
+          "items": {
+            "$ref": "#/$defs/lessonEvidence"
+          }
+        },
+        "sourceRefs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "items": {
+            "$ref": "#/$defs/sourceRef"
+          }
+        },
+        "experimentId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 160
+        },
+        "createdAt": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "approvalId": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "lifecycle": {
+                "enum": [
+                  "approved",
+                  "active"
+                ]
+              }
+            },
+            "required": [
+              "lifecycle"
+            ]
+          },
+          "then": {
+            "required": [
+              "approvalId"
+            ]
+          }
+        }
+      ]
+    },
+    "strategyAttempt": {
+      "type": "object",
+      "required": [
+        "name",
+        "outcome"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240
+        },
+        "outcome": {
+          "enum": [
+            "success",
+            "partial",
+            "failure",
+            "skipped"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        }
+      },
+      "additionalProperties": false
+    },
+    "learningExperience": {
+      "type": "object",
+      "required": [
+        "contractVersion",
+        "id",
+        "taskId",
+        "projectId",
+        "outcome",
+        "summary",
+        "strategies",
+        "sourceRefs",
+        "capturedAt",
+        "expiresAt"
+      ],
+      "properties": {
+        "contractVersion": {
+          "const": "1"
+        },
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "taskId": {
+          "$ref": "#/$defs/id"
+        },
+        "projectId": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "outcome": {
+          "enum": [
+            "success",
+            "partial",
+            "failure",
+            "cancelled"
+          ]
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1200
+        },
+        "strategies": {
+          "type": "array",
+          "maxItems": 30,
+          "items": {
+            "$ref": "#/$defs/strategyAttempt"
+          }
+        },
+        "sourceRefs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "items": {
+            "$ref": "#/$defs/sourceRef"
+          }
+        },
+        "capturedAt": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "expiresAt": {
+          "$ref": "#/$defs/nullableTimestamp"
+        }
+      },
+      "additionalProperties": false
+    },
+    "scores": {
+      "type": "object",
+      "required": [
+        "correctness",
+        "completeness",
+        "efficiency",
+        "policyCompliance",
+        "userSatisfaction"
+      ],
+      "properties": {
+        "correctness": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "completeness": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "efficiency": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "policyCompliance": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "userSatisfaction": {
+          "oneOf": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "userFeedback": {
+      "type": "object",
+      "required": [
+        "usefulness",
+        "createdAt"
+      ],
+      "properties": {
+        "usefulness": {
+          "enum": [
+            "useful",
+            "not_useful"
+          ]
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "createdAt": {
+          "$ref": "#/$defs/timestamp"
+        }
+      },
+      "additionalProperties": false
+    },
+    "learningEvaluation": {
+      "type": "object",
+      "required": [
+        "contractVersion",
+        "id",
+        "taskId",
+        "experienceId",
+        "outcome",
+        "scores",
+        "evaluatorVersion",
+        "policyFindings",
+        "createdAt"
+      ],
+      "properties": {
+        "contractVersion": {
+          "const": "1"
+        },
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "taskId": {
+          "$ref": "#/$defs/id"
+        },
+        "experienceId": {
+          "$ref": "#/$defs/id"
+        },
+        "outcome": {
+          "enum": [
+            "accepted",
+            "needs_review",
+            "rejected"
+          ]
+        },
+        "scores": {
+          "$ref": "#/$defs/scores"
+        },
+        "evaluatorVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "policyFindings": {
+          "type": "array",
+          "maxItems": 30,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          }
+        },
+        "userFeedback": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/userFeedback"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "createdAt": {
+          "$ref": "#/$defs/timestamp"
+        }
+      },
+      "additionalProperties": false
+    },
+    "learningExperiment": {
+      "type": "object",
+      "required": [
+        "contractVersion",
+        "id",
+        "targetKind",
+        "targetId",
+        "status",
+        "sandbox",
+        "baselineRuns",
+        "candidateRuns",
+        "passedRuns",
+        "failedRuns",
+        "summary",
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "contractVersion": {
+          "const": "1"
+        },
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "targetKind": {
+          "enum": [
+            "lesson",
+            "skill"
+          ]
+        },
+        "targetId": {
+          "$ref": "#/$defs/id"
+        },
+        "status": {
+          "enum": [
+            "proposed",
+            "queued",
+            "running",
+            "passed",
+            "failed",
+            "cancelled"
+          ]
+        },
+        "sandbox": {
+          "enum": [
+            "synthetic",
+            "isolated"
+          ]
+        },
+        "baselineRuns": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "candidateRuns": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "passedRuns": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "failedRuns": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "createdAt": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/$defs/timestamp"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "passed"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "candidateRuns": {
+                "minimum": 1
+              },
+              "passedRuns": {
+                "minimum": 1
+              }
+            }
+          }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "skillTestSummary": {
+      "type": "object",
+      "required": [
+        "passed",
+        "total"
+      ],
+      "properties": {
+        "passed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "skillRecord": {
+      "type": "object",
+      "required": [
+        "contractVersion",
+        "id",
+        "name",
+        "description",
+        "version",
+        "scope",
+        "lifecycle",
+        "sourceRefs",
+        "testSummary",
+        "successRate",
+        "requiresApproval",
+        "createdAt",
+        "updatedAt",
+        "revision"
+      ],
+      "properties": {
+        "contractVersion": {
+          "const": "1"
+        },
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "lifecycle": {
+          "enum": [
+            "candidate",
+            "review",
+            "active",
+            "deprecated",
+            "rejected",
+            "archived"
+          ]
+        },
+        "sourceRefs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "items": {
+            "$ref": "#/$defs/sourceRef"
+          }
+        },
+        "testSummary": {
+          "$ref": "#/$defs/skillTestSummary"
+        },
+        "successRate": {
+          "oneOf": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "requiresApproval": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "approvalId": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "lifecycle": {
+                "enum": [
+                  "candidate",
+                  "review"
+                ]
+              }
+            },
+            "required": [
+              "lifecycle"
+            ]
+          },
+          "then": {
+            "properties": {
+              "requiresApproval": {
+                "const": true
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "lifecycle": {
+                "const": "active"
+              }
+            },
+            "required": [
+              "lifecycle"
+            ]
+          },
+          "then": {
+            "required": [
+              "approvalId"
+            ],
+            "properties": {
+              "requiresApproval": {
+                "const": false
+              }
+            }
+          }
+        }
+      ]
+    },
+    "approvalRecord": {
+      "type": "object",
+      "required": [
+        "contractVersion",
+        "id",
+        "subjectKind",
+        "subjectId",
+        "requestedAction",
+        "requestedBy",
+        "status",
+        "createdAt",
+        "resolvedAt",
+        "resolvedBy"
+      ],
+      "properties": {
+        "contractVersion": {
+          "const": "1"
+        },
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "subjectKind": {
+          "enum": [
+            "memory",
+            "lesson",
+            "skill",
+            "knowledge"
+          ]
+        },
+        "subjectId": {
+          "$ref": "#/$defs/id"
+        },
+        "requestedAction": {
+          "enum": [
+            "promote",
+            "activate",
+            "share_scope",
+            "replace_version"
+          ]
+        },
+        "requestedBy": {
+          "$ref": "#/$defs/id"
+        },
+        "status": {
+          "enum": [
+            "pending",
+            "approved",
+            "rejected",
+            "expired",
+            "cancelled"
+          ]
+        },
+        "createdAt": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "resolvedAt": {
+          "$ref": "#/$defs/nullableTimestamp"
+        },
+        "resolvedBy": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        }
+      },
+      "additionalProperties": false
+    },
+    "taskLearningEvent": {
+      "type": "object",
+      "required": [
+        "contractVersion",
+        "id",
+        "taskId",
+        "sequence",
+        "occurredAt",
+        "type",
+        "payload"
+      ],
+      "properties": {
+        "contractVersion": {
+          "const": "1"
+        },
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "taskId": {
+          "$ref": "#/$defs/id"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "occurredAt": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "type": {
+          "enum": [
+            "memory.retrieved",
+            "knowledge.retrieved",
+            "knowledge.relations_retrieved",
+            "knowledge.source.consulted",
+            "learning.experience.recorded",
+            "learning.evaluation.completed",
+            "learning.lesson.candidate",
+            "learning.lesson.status_changed",
+            "learning.experiment.completed",
+            "skill.candidate",
+            "skill.status_changed"
+          ]
+        },
+        "payload": {
+          "type": "object"
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "type": {
+              "const": "memory.retrieved"
+            },
+            "payload": {
+              "$ref": "#/$defs/memoryRetrievedPayload"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "knowledge.retrieved"
+            },
+            "payload": {
+              "$ref": "#/$defs/knowledgeRetrievedPayload"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "knowledge.relations_retrieved"
+            },
+            "payload": {
+              "$ref": "#/$defs/knowledgeRelationsRetrievedPayload"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "knowledge.source.consulted"
+            },
+            "payload": {
+              "$ref": "#/$defs/sourceConsultedPayload"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "learning.experience.recorded"
+            },
+            "payload": {
+              "$ref": "#/$defs/experiencePayload"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "learning.evaluation.completed"
+            },
+            "payload": {
+              "$ref": "#/$defs/evaluationPayload"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "learning.lesson.candidate"
+            },
+            "payload": {
+              "$ref": "#/$defs/lessonPayload"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "learning.lesson.status_changed"
+            },
+            "payload": {
+              "$ref": "#/$defs/lessonPayload"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "learning.experiment.completed"
+            },
+            "payload": {
+              "$ref": "#/$defs/experimentPayload"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "skill.candidate"
+            },
+            "payload": {
+              "$ref": "#/$defs/skillPayload"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "skill.status_changed"
+            },
+            "payload": {
+              "$ref": "#/$defs/skillPayload"
+            }
+          }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "memoryRetrievedPayload": {
+      "type": "object",
+      "required": [
+        "queryId",
+        "memories",
+        "truncated"
+      ],
+      "properties": {
+        "queryId": {
+          "$ref": "#/$defs/id"
+        },
+        "memories": {
+          "type": "array",
+          "maxItems": 30,
+          "items": {
+            "$ref": "#/$defs/memoryRecord"
+          }
+        },
+        "truncated": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "knowledgeRetrievedPayload": {
+      "type": "object",
+      "required": [
+        "queryId",
+        "items",
+        "truncated"
+      ],
+      "properties": {
+        "queryId": {
+          "$ref": "#/$defs/id"
+        },
+        "items": {
+          "type": "array",
+          "maxItems": 30,
+          "items": {
+            "$ref": "#/$defs/knowledgeItem"
+          }
+        },
+        "truncated": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "sourceConsultedPayload": {
+      "type": "object",
+      "required": [
+        "source"
+      ],
+      "properties": {
+        "source": {
+          "$ref": "#/$defs/knowledgeSource"
+        }
+      },
+      "additionalProperties": false
+    },
+    "experiencePayload": {
+      "type": "object",
+      "required": [
+        "experience"
+      ],
+      "properties": {
+        "experience": {
+          "$ref": "#/$defs/learningExperience"
+        }
+      },
+      "additionalProperties": false
+    },
+    "evaluationPayload": {
+      "type": "object",
+      "required": [
+        "evaluation"
+      ],
+      "properties": {
+        "evaluation": {
+          "$ref": "#/$defs/learningEvaluation"
+        }
+      },
+      "additionalProperties": false
+    },
+    "lessonPayload": {
+      "type": "object",
+      "required": [
+        "lesson"
+      ],
+      "properties": {
+        "lesson": {
+          "$ref": "#/$defs/lessonRecord"
+        }
+      },
+      "additionalProperties": false
+    },
+    "experimentPayload": {
+      "type": "object",
+      "required": [
+        "experiment"
+      ],
+      "properties": {
+        "experiment": {
+          "$ref": "#/$defs/learningExperiment"
+        }
+      },
+      "additionalProperties": false
+    },
+    "skillPayload": {
+      "type": "object",
+      "required": [
+        "skill"
+      ],
+      "properties": {
+        "skill": {
+          "$ref": "#/$defs/skillRecord"
+        }
+      },
+      "additionalProperties": false
+    },
+    "workspaceEvent": {
+      "type": "object",
+      "required": [
+        "contractVersion",
+        "id",
+        "sequence",
+        "occurredAt",
+        "scope",
+        "type",
+        "source",
+        "approvalId",
+        "payload"
+      ],
+      "properties": {
+        "contractVersion": {
+          "const": "1"
+        },
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "occurredAt": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "type": {
+          "enum": [
+            "memory.created",
+            "memory.updated",
+            "memory.lifecycle_changed",
+            "memory.forgotten",
+            "knowledge.source.ingested",
+            "knowledge.source.stale",
+            "knowledge.source.superseded",
+            "knowledge.item.extracted",
+            "knowledge.item.superseded",
+            "knowledge.relation.created",
+            "knowledge.relation.invalidated",
+            "knowledge.retrieved",
+            "learning.experience.recorded",
+            "learning.evaluation.completed",
+            "learning.lesson.candidate",
+            "learning.lesson.status_changed",
+            "learning.experiment.completed",
+            "skill.candidate",
+            "skill.status_changed",
+            "skill.version.created",
+            "skill.rolled_back",
+            "approval.requested",
+            "approval.resolved"
+          ]
+        },
+        "payload": {
+          "type": "object"
+        },
+        "source": {
+          "enum": [
+            "agent",
+            "user",
+            "system",
+            "connector",
+            "scheduler",
+            "service"
+          ]
+        },
+        "approvalId": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "properties": {
+            "type": {
+              "const": "memory.created"
+            },
+            "payload": {
+              "$ref": "#/$defs/memoryPayload"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "memory.updated"
+            },
+            "payload": {
+              "$ref": "#/$defs/memoryPayload"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "memory.lifecycle_changed"
+            },
+            "payload": {
+              "$ref": "#/$defs/memoryPayload"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "memory.forgotten"
+            },
+            "payload": {
+              "$ref": "#/$defs/forgottenPayload"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "knowledge.source.ingested"
+            },
+            "payload": {
+              "$ref": "#/$defs/knowledgeSourcePayload"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "knowledge.source.stale"
+            },
+            "payload": {
+              "$ref": "#/$defs/knowledgeSourcePayload"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "knowledge.source.superseded"
+            },
+            "payload": {
+              "$ref": "#/$defs/knowledgeSourcePayload"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "knowledge.item.extracted"
+            },
+            "payload": {
+              "$ref": "#/$defs/knowledgeItemPayload"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "knowledge.item.superseded"
+            },
+            "payload": {
+              "$ref": "#/$defs/knowledgeItemPayload"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "knowledge.relation.created"
+            },
+            "payload": {
+              "$ref": "#/$defs/knowledgeRelationPayload"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "knowledge.relation.invalidated"
+            },
+            "payload": {
+              "$ref": "#/$defs/knowledgeRelationPayload"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "knowledge.retrieved"
+            },
+            "payload": {
+              "$ref": "#/$defs/knowledgeRetrievedPayload"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "learning.experience.recorded"
+            },
+            "payload": {
+              "$ref": "#/$defs/experiencePayload"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "learning.evaluation.completed"
+            },
+            "payload": {
+              "$ref": "#/$defs/evaluationPayload"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "learning.lesson.candidate"
+            },
+            "payload": {
+              "$ref": "#/$defs/lessonPayload"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "learning.lesson.status_changed"
+            },
+            "payload": {
+              "$ref": "#/$defs/lessonPayload"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "learning.experiment.completed"
+            },
+            "payload": {
+              "$ref": "#/$defs/experimentPayload"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "skill.candidate"
+            },
+            "payload": {
+              "$ref": "#/$defs/skillPayload"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "skill.status_changed"
+            },
+            "payload": {
+              "$ref": "#/$defs/skillPayload"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "skill.version.created"
+            },
+            "payload": {
+              "$ref": "#/$defs/skillVersionCreatedPayload"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "skill.rolled_back"
+            },
+            "payload": {
+              "$ref": "#/$defs/skillRollbackPayload"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "approval.requested"
+            },
+            "payload": {
+              "$ref": "#/$defs/approvalPayload"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "approval.resolved"
+            },
+            "payload": {
+              "$ref": "#/$defs/approvalPayload"
+            }
+          }
+        }
+      ]
+    },
+    "memoryPayload": {
+      "type": "object",
+      "required": [
+        "memory"
+      ],
+      "properties": {
+        "memory": {
+          "$ref": "#/$defs/memoryRecord"
+        }
+      },
+      "additionalProperties": false
+    },
+    "forgottenPayload": {
+      "type": "object",
+      "required": [
+        "memoryId",
+        "scope",
+        "forgottenAt",
+        "tombstoneId"
+      ],
+      "properties": {
+        "memoryId": {
+          "$ref": "#/$defs/id"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "forgottenAt": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "tombstoneId": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "additionalProperties": false
+    },
+    "knowledgeSourcePayload": {
+      "type": "object",
+      "required": [
+        "source"
+      ],
+      "properties": {
+        "source": {
+          "$ref": "#/$defs/knowledgeSource"
+        }
+      },
+      "additionalProperties": false
+    },
+    "knowledgeItemPayload": {
+      "type": "object",
+      "required": [
+        "item"
+      ],
+      "properties": {
+        "item": {
+          "$ref": "#/$defs/knowledgeItem"
+        }
+      },
+      "additionalProperties": false
+    },
+    "approvalPayload": {
+      "type": "object",
+      "required": [
+        "approval"
+      ],
+      "properties": {
+        "approval": {
+          "$ref": "#/$defs/approvalRecord"
+        }
+      },
+      "additionalProperties": false
+    },
+    "skillVersionCreatedPayload": {
+      "type": "object",
+      "required": [
+        "skill",
+        "changeSummary"
+      ],
+      "properties": {
+        "skill": {
+          "$ref": "#/$defs/skillRecord"
+        },
+        "changeSummary": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        }
+      },
+      "additionalProperties": false
+    },
+    "skillRollbackPayload": {
+      "type": "object",
+      "required": [
+        "skill",
+        "rollbackTo"
+      ],
+      "properties": {
+        "skill": {
+          "$ref": "#/$defs/skillRecord"
+        },
+        "rollbackTo": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        }
+      },
+      "additionalProperties": false
+    },
+    "knowledgeEntityReference": {
+      "type": "object",
+      "required": [
+        "kind",
+        "id"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "project",
+            "source",
+            "item",
+            "skill",
+            "technology",
+            "api",
+            "dependency"
+          ]
+        },
+        "id": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "additionalProperties": false
+    },
+    "knowledgeRelation": {
+      "type": "object",
+      "required": [
+        "contractVersion",
+        "id",
+        "subject",
+        "predicate",
+        "object",
+        "scope",
+        "lifecycle",
+        "confidence",
+        "sourceRefs",
+        "createdAt",
+        "updatedAt",
+        "revision"
+      ],
+      "properties": {
+        "contractVersion": {
+          "const": "1"
+        },
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "subject": {
+          "$ref": "#/$defs/knowledgeEntityReference"
+        },
+        "predicate": {
+          "enum": [
+            "uses",
+            "depends_on",
+            "deployed_to",
+            "implements",
+            "derived_from",
+            "supersedes",
+            "contradicts",
+            "contains",
+            "related_to"
+          ]
+        },
+        "object": {
+          "$ref": "#/$defs/knowledgeEntityReference"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "lifecycle": {
+          "enum": [
+            "candidate",
+            "verified",
+            "stale",
+            "invalidated"
+          ]
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "sourceRefs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "items": {
+            "$ref": "#/$defs/sourceRef"
+          }
+        },
+        "createdAt": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "knowledgeRelationsRetrievedPayload": {
+      "type": "object",
+      "required": [
+        "queryId",
+        "relations",
+        "truncated"
+      ],
+      "properties": {
+        "queryId": {
+          "$ref": "#/$defs/id"
+        },
+        "relations": {
+          "type": "array",
+          "maxItems": 30,
+          "items": {
+            "$ref": "#/$defs/knowledgeRelation"
+          }
+        },
+        "truncated": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "knowledgeRelationPayload": {
+      "type": "object",
+      "required": [
+        "relation"
+      ],
+      "properties": {
+        "relation": {
+          "$ref": "#/$defs/knowledgeRelation"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

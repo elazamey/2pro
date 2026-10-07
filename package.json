@@ -9,8 +9,10 @@
     "actions/*"
   ],
   "scripts": {
-    "build": "npm run build --workspaces --if-present",
+    "build": "npm run build -w @2pro/sdk && npm run build -w @2pro/figma && npm run build -w @2pro/google && npm run build -w @2pro/gitlab && npm run build -w @2pro/cli && npm run build -w @2pro/notifications && npm run build -w @2pro/agent-ui && npm run build -w @2pro/action-auto-label-pr && npm run build -w @2pro/action-label-sync",
     "dev:dashboard": "npm run dev -w @2pro/dashboard",
+    "dev:agent-ui": "npm run dev -w @2pro/agent-ui",
+    "build:agent-ui": "npm run build -w @2pro/agent-ui",
     "dev:cli": "npm run dev -w @2pro/cli",
     "test": "npm run test --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present"
