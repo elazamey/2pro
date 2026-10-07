@@ -1,3 +1,7 @@
+@import "./workspace-features.css";
+@import "./agent-contract.css";
+@import "./learning-panels.css";
+
 :root {
   color-scheme: dark;
   --canvas: #0a0b10;
@@ -207,11 +211,13 @@ kbd { border: 1px solid rgba(255,255,255,.12); border-radius: 5px; padding: 2px 
 .streaming-bubble { display: flex; align-items: flex-end; gap: 10px; }
 .streaming-bubble p { flex: 1; }
 .quick-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; }
-.quick-action { min-height: 36px; display: inline-flex; align-items: center; gap: 8px; padding: 0 10px; border: 1px solid rgba(185,144,255,.19); border-radius: 10px; color: #d4c2f4; background: rgba(145,108,206,.075); cursor: pointer; text-align: right; font-size: 9px; transition: background .16s, border-color .16s, transform .16s; }
+.quick-action { min-height: 36px; display: inline-flex; align-items: center; gap: 8px; padding: 0 10px; border: 1px solid rgba(185,144,255,.19); border-radius: 10px; color: #d4c2f4; background: rgba(145,108,206,.075); cursor: pointer; text-align: right; text-decoration: none; font-size: 9px; transition: background .16s, border-color .16s, transform .16s; }
 .quick-action:hover { transform: translateY(-1px); border-color: rgba(185,144,255,.4); background: rgba(145,108,206,.14); }
 .quick-action:disabled { opacity: .55; transform: none; }
 .quick-action.action-green { border-color: rgba(117,214,167,.17); color: #a1e4c1; background: rgba(84,180,128,.065); }
 .quick-action.action-green:hover { border-color: rgba(117,214,167,.36); background: rgba(84,180,128,.12); }
+.quick-action.action-telegram { border-color: rgba(94,178,240,.2); color: #91cdf5; background: rgba(52,133,196,.08); }
+.quick-action.action-telegram:hover { border-color: rgba(94,178,240,.4); background: rgba(52,133,196,.16); }
 .action-chevron { margin-inline-start: 3px; opacity: .6; transform: rotate(180deg); }
 .assistant-thinking { display: flex; align-items: center; gap: 9px; color: #92919f; font-size: 10px; }
 .thinking-dots { display: inline-flex; gap: 3px; }
@@ -305,6 +311,7 @@ kbd { border: 1px solid rgba(255,255,255,.12); border-radius: 5px; padding: 2px 
 .integration-icon { width: 28px; height: 28px; flex: 0 0 auto; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.07); border-radius: 8px; color: #bba0e8; background: rgba(171,136,223,.08); }
 .integration-creditCard { color: #85d7c4; background: rgba(85,185,154,.075); }
 .integration-phone { color: #8bd6a9; background: rgba(81,176,115,.075); }
+.integration-telegram { color: #83c8f2; background: rgba(66,150,205,.09); }
 .integration-copy { min-width: 0; display: flex; flex: 1; flex-direction: column; gap: 3px; }
 .integration-copy strong { overflow: hidden; color: #c8c5d0; font-size: 9px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
 .integration-copy small { color: #737582; font-size: 8px; }

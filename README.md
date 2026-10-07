@@ -7,7 +7,8 @@
 | **SDK** | [`packages/sdk/`](./packages/sdk) | TypeScript client wrapping the GitHub REST + GraphQL API (repos, issues, PRs, Actions, users, with pagination and proper error types). |
 | **CLI** | [`packages/cli/`](./packages/cli) | A small, dependency-free command-line tool (`2pro` / `gh2`) for repos, issues, PRs, Actions, **Figma design tokens and code generation** on the terminal. |
 | **Dashboard** | [`apps/dashboard/`](./apps/dashboard) | A web dashboard (Express + vanilla SPA) that lets you browse repos, manage issues/PRs, monitor/re-run/cancel Actions runs, **and extract design tokens / generate code from Figma files** in the browser. Supports GitHub OAuth sign-in. |
-| **Celia Agent UI** | [`apps/agent-ui/`](./apps/agent-ui) | A Next.js dark-mode chat workspace with an Arabic RTL interface, a visual execution timeline, quick actions, and a server-side adapter for a Celia Agent endpoint. Runs in a clearly labelled interactive demo until an agent endpoint is configured. |
+| **Celia Agent UI** | [`apps/agent-ui/`](./apps/agent-ui) | A Next.js dark-mode chat workspace with an Arabic RTL interface, a visual execution timeline, quick actions, and a server-side adapter for a Celia Agent endpoint. Runs in a clearly labelled interactive demo until an agent endpoint is configured. Includes a Telegram webhook with a shared-secret check and chat allowlist. |
+| **Notifications** | [`packages/notifications/`](./packages/notifications) | Zero-dependency notification helpers, including Telegram Bot API messages and optional admin alerts. |
 | **Figma** | [`packages/figma/`](./packages/figma) | Figma REST API client, design-token extractor (colors/typography/spacing/radii → CSS/Tailwind theme), and HTML+Tailwind code generator from Figma frames. |
 | **Google** | [`packages/google/`](./packages/google) | Google Workspace client (**Drive** + **Gmail**) on top of `googleapis`, with OAuth 2.0 helpers for CLI & web and an encrypted-file token store. |
 | **GitLab** | [`packages/gitlab/`](./packages/gitlab) | GitLab REST API v4 client (**projects, issues, merge requests, pipelines**), supports self-hosted instances via `GITLAB_API_URL`. |
@@ -38,6 +39,9 @@ npm run dev:dashboard            # http://localhost:3000
 
 # Celia Agent chat UI
 npm run dev:agent-ui             # http://localhost:3001
+
+# Optional: register the Telegram webhook after setting its env vars / HTTPS tunnel
+npm run telegram:setup -w @2pro/agent-ui
 
 # Build the label-sync action (produces a single bundled dist/index.js)
 npm run build -w @2pro/action-label-sync
@@ -141,7 +145,7 @@ CELIA_AGENT_URL=https://your-agent.example.com/api/chat
 CELIA_AGENT_TOKEN=... # optional; sent only as a server-side Bearer token
 ```
 
-The endpoint should accept `POST` JSON `{ "message": "...", "conversationId": "...", "history": [{ "role": "user", "content": "..." }] }` and return JSON such as:
+The endpoint should accept `POST` JSON `{ "message": "...", "conversationId": "...", "requestId": "...", "history": [{ "role": "user", "content": "..." }] }` and return JSON such as:
 
 ```json
 {
@@ -155,13 +159,22 @@ For real-time progress, the endpoint may instead return `text/event-stream` even
 
 Vercel is the simplest first deployment target for this Next.js workspace. Set the project root to `apps/agent-ui`, configure the server environment variables there, and use the free tier subject to the provider's current limits. Cloudflare deployment may require its Next.js/OpenNext adapter and should be tested with the configured agent endpoint.
 
+### Telegram webhook and notifications
+
+The repository's `apps/dashboard` is Express, not Next.js. The Celia Next.js application is `apps/agent-ui`, so its Telegram webhook lives at `POST /api/telegram`. Set `TELEGRAM_BOT_TOKEN`, `TELEGRAM_BOT_USERNAME`, `TELEGRAM_WEBHOOK_SECRET`, and `TELEGRAM_ALLOWED_CHAT_IDS` in `apps/agent-ui/.env.local` (or the deployment environment). You can generate a webhook secret with `openssl rand -hex 32`; add the administrator chat ID to the comma-separated allowlist. Unauthorized users cannot invoke Celia; `/id` helps an administrator identify a chat to authorize.
+
+For local testing, start the app on port 3001, expose it through an HTTPS ngrok or Cloudflare Tunnel, and set `TELEGRAM_WEBHOOK_URL=https://<your-tunnel>/api/telegram`. Then run `npm run telegram:setup -w @2pro/agent-ui`; the script verifies the bot and calls Telegram's `setWebhook`. It does not create a public tunnel. The webhook verifies Telegram's `X-Telegram-Bot-Api-Secret-Token` header, supports `/start`, `/help`, `/id`, `/status`, and `/deploy`, and forwards authorized text to the same Celia Agent adapter as the web chat. `/deploy` requests a plan and asks the agent not to deploy without explicit confirmation.
+
+`@2pro/notifications` exports `sendTelegramMessage` and `notifyAdminViaTelegram`. The helper is ready for payment/deployment/anchor event producers, but this repository currently has no Stripe/USDT, Vercel/Cloudflare deployment, or blockchain-anchor event pipeline, so those alerts are not wired to real events yet. Telegram messages are plain text; tokens remain server-side.
+
 ## Project layout
 
 ```
 2pro/
 ├── packages/
-│   ├── sdk/        # @2pro/sdk       — core TS client
-│   └── cli/        # @2pro/cli       — 2pro / gh2 binary
+│   ├── sdk/           # @2pro/sdk           — core TS client
+│   ├── notifications/ # @2pro/notifications — Telegram notification helpers
+│   └── cli/           # @2pro/cli           — 2pro / gh2 binary
 ├── apps/
 │   ├── dashboard/  # @2pro/dashboard — Express + SPA web UI
 │   └── agent-ui/   # @2pro/agent-ui — Next.js Celia chat workspace

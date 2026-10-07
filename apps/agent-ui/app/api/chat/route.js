@@ -1,3 +1,5 @@
+import { callCeliaAgent } from "../../../lib/celia-agent.js";
+
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
@@ -30,6 +32,10 @@ export async function POST(request) {
   const message = typeof body?.message === "string" ? body.message.trim() : "";
   if (!message) return jsonError("اكتب طلبًا أولًا.", 400);
   if (message.length > 4000) return jsonError("الطلب أطول من الحد المسموح.", 413);
+  if (body?.learningConsent !== undefined && typeof body.learningConsent !== "boolean") {
+    return jsonError("حقل موافقة التعلّم يجب أن يكون قيمة منطقية.", 400);
+  }
+  const learningConsent = body?.learningConsent === true;
 
   const conversationId = typeof body.conversationId === "string" && body.conversationId.length <= 160
     ? body.conversationId
@@ -41,29 +47,16 @@ export async function POST(request) {
     })
     : [];
 
-  const agentUrl = process.env.CELIA_AGENT_URL;
-  if (!agentUrl) {
-    // The browser turns this response into an explicitly-labelled local demo.
-    // No external tools are called and no project files are changed in demo mode.
-    return Response.json({ mode: "demo" });
-  }
-
   try {
-    const headers = { "Content-Type": "application/json", Accept: "application/json, text/event-stream" };
-    if (process.env.CELIA_AGENT_TOKEN) {
-      headers.Authorization = `Bearer ${process.env.CELIA_AGENT_TOKEN}`;
+    const result = await callCeliaAgent({ message, conversationId, history, learningConsent });
+    if (result.mode === "demo") {
+      // The browser turns this response into an explicitly-labelled local demo.
+      // No external tools are called and no project files are changed in demo mode.
+      return Response.json({ mode: "demo" });
     }
 
-    const upstream = await fetch(agentUrl, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({ message, conversationId, history }),
-      cache: "no-store",
-      signal: AbortSignal.timeout(60_000),
-    });
-    const contentType = upstream.headers.get("content-type") || "";
-    if (upstream.ok && contentType.includes("text/event-stream") && upstream.body) {
-      return new Response(upstream.body, {
+    if (result.stream) {
+      return new Response(result.stream, {
         status: 200,
         headers: {
           "Content-Type": "text/event-stream; charset=utf-8",
@@ -72,21 +65,13 @@ export async function POST(request) {
         },
       });
     }
-    const payload = await upstream.json().catch(() => null);
 
-    if (!upstream.ok) {
-      const message = typeof payload?.error === "string" ? payload.error : `خدمة الوكيل أعادت الحالة ${upstream.status}.`;
-      return jsonError(message.slice(0, 500), upstream.status >= 400 && upstream.status < 600 ? upstream.status : 502);
-    }
-    if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
-      return jsonError("استجابة الوكيل ليست بتنسيق JSON المتوقع.", 502);
-    }
-
-    return Response.json({ ...payload, mode: "live" });
+    return Response.json({ ...result.payload, mode: "live" });
   } catch (error) {
     const message = error?.name === "TimeoutError"
       ? "انتهت مهلة الاتصال بخدمة الوكيل."
-      : "تعذّر الاتصال بخدمة Celia Agent.";
-    return jsonError(message, 502);
+      : error?.message || "تعذّر الاتصال بخدمة Celia Agent.";
+    const status = Number.isInteger(error?.status) ? error.status : 502;
+    return jsonError(String(message).slice(0, 500), status);
   }
 }

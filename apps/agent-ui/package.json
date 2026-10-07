@@ -7,11 +7,14 @@
     "node": ">=20.9.0"
   },
   "scripts": {
-    "dev": "next dev --hostname 0.0.0.0 --port 3001",
-    "build": "next build",
-    "start": "next start --hostname 0.0.0.0 --port 3001"
+    "dev": "npm run build --prefix ../../packages/notifications && next dev --hostname 0.0.0.0 --port 3001",
+    "build": "npm run build --prefix ../../packages/notifications && next build",
+    "start": "next start --hostname 0.0.0.0 --port 3001",
+    "test": "node --test test/*.test.mjs",
+    "telegram:setup": "node scripts/setup-telegram.mjs"
   },
   "dependencies": {
+    "@2pro/notifications": "*",
     "next": "^16.4.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
